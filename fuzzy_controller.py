@@ -29,7 +29,8 @@ class LinearMembership():
         return (x-x_range[0])*linear_growth+m_range[0] if x>=x_range[0] and x<x_range[1] else 0
     
     def fuzzify(self, x):
-        pass
+        return {key:fn(x) for key, fn in self.fuzzify_params.items()}
+    
     def defuzzify(self, x, fuzzy_output):
         max_value = self.fuzzify(x)
         return max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
@@ -52,13 +53,6 @@ class Right(LinearMembership):
 
     def far_R(self, x):
         return self.membership(x, (50, 1), (0, 1))
-
-    def fuzzify(self, x):
-        fuzzy_values = {}
-        fuzzy_values[CLOSE_R] = self.close_R(x)
-        fuzzy_values[MODERATE_R] = self.moderate_R(x)
-        fuzzy_values[FAR_R] = self.far_R(x)
-        return fuzzy_values
     
 class Left(LinearMembership):
     def __init__(self):
@@ -78,13 +72,6 @@ class Left(LinearMembership):
 
     def far_L(self, x):
         return self.membership(x, (50, 1), (0, 1))
-    
-    def fuzzify(self, x):
-        fuzzy_values = {}
-        fuzzy_values[CLOSE_L] = self.close_L(x)
-        fuzzy_values[MODERATE_L] = self.moderate_L(x)
-        fuzzy_values[FAR_L] = self.far_L(x)
-        return fuzzy_values
 
 class Rotation(LinearMembership):
     def __init__(self):
@@ -116,15 +103,6 @@ class Rotation(LinearMembership):
     def high_left(self, x):
         return self.membership(x, (5, 20), (0, 1)) + \
             self.membership(x, (20, 50), (1, 0))
-            
-    def fuzzify(self, x):
-        fuzzy_values = {}
-        fuzzy_values[LOW_RIGHT] = self.low_right(x)
-        fuzzy_values[HIGH_RIGHT] = self.high_right(x)
-        fuzzy_values[NOTHING] = self.nothing(x)
-        fuzzy_values[LOW_LEFT] = self.low_left(x)
-        fuzzy_values[HIGHT_LEFT] = self.high_left(x)
-        return fuzzy_values
 
 
 class FuzzyController:
