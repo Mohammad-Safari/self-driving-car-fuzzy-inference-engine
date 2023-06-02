@@ -38,9 +38,9 @@ class Right(LinearMembership):
 
     def fuzzify(self, x):
         fuzzy_values = {}
-        fuzzy_values[CLOSE_L] = self.close_R(x)
-        fuzzy_values[MODERATE_L] = self.moderate_R(x)
-        fuzzy_values[FAR_L] = self.far_R(x)
+        fuzzy_values[CLOSE_R] = self.close_R(x)
+        fuzzy_values[MODERATE_R] = self.moderate_R(x)
+        fuzzy_values[FAR_R] = self.far_R(x)
         return fuzzy_values
     
 class Left(LinearMembership):
