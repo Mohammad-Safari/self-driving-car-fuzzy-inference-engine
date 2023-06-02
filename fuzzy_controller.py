@@ -103,13 +103,14 @@ class FuzzyController:
         self.rotate_membership = Rotation()
 
     def parse_rule(self, rule_string):
-        m = re.match(r'IF \((\w+) IS (\w+) \) AND \((\w+) IS (\w+)\)  THEN  (\w+) IS (\w+)', rule_string)
+        m = re.match(r'IF \((\w+) IS (\w+) \) (AND|OR) \((\w+) IS (\w+)\)  THEN  (\w+) IS (\w+)', rule_string)
         if not m:
             raise ValueError(f"Invalid rule: {rule_string}")
-        return (
-            [(m.group(1), m.group(2)), (m.group(3), m.group(4))],
-            (m.group(5), m.group(6))
-        )
+        # TODO: implement possibility of single antecedent and multiple consequent in rules
+        return {
+            'antecedent': {m.group(1): m.group(2), 'Operator':m.group(3), m.group(4): m.group(5)},
+            'consequent': {m.group(6): m.group(7)}
+        }
 
     def read_rules(self, file_path):
         with open(file_path) as f:
@@ -128,7 +129,23 @@ class FuzzyController:
     
     # Inference method
     def inference(self, fuzzy_values):
-        pass
+        rules = self.rules
+        output = {}
+        for rule in rules:
+            ant, cons = [list(ruleValue.values()) for ruleValue in rule.values()]
+            if 'Operator' in ant:
+                activation = min([fuzzy_values[ant[0]], fuzzy_values[ant[2]]]) if str(ant[1]).lower()=='and' \
+                    else max([fuzzy_values[ant[0]], fuzzy_values[ant[2]]]) # OR operator
+            else:
+                activation = fuzzy_values[ant[0]]
+                
+            for act in cons:
+                if act in output:
+                    output[act] = max(output[act], activation)
+                else:
+                    output[act] = activation
+
+        return output
 
     # Defuzzification method
     def defuzzify(self, fuzzy_output):
