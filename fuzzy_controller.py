@@ -20,7 +20,7 @@ HIGHT_LEFT = 'high_left'
 class LinearMembership():
     def membership(self, x, x_range, m_range):
         linear_growth = (m_range[1]-m_range[0])/(x_range[1]-x_range[0])
-        return x*linear_growth+m_range[0] if x>=x_range[0] and x<x_range[1] else 0
+        return (x-x_range[0])*linear_growth+m_range[0] if x>=x_range[0] and x<x_range[1] else 0
     
     def fuzzify(self, x):
         pass
