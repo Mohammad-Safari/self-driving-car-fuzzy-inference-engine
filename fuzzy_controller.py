@@ -18,14 +18,31 @@ LOW_LEFT = 'low_left'
 HIGHT_LEFT = 'high_left'
 
 class LinearMembership():
+    def __init__(self):
+        """
+        in this part self.fuzzify_params and self.fuzzify_lables must be initialized
+        """
+        pass
+    
     def membership(self, x, x_range, m_range):
         linear_growth = (m_range[1]-m_range[0])/(x_range[1]-x_range[0])
         return (x-x_range[0])*linear_growth+m_range[0] if x>=x_range[0] and x<x_range[1] else 0
     
     def fuzzify(self, x):
         pass
+    def defuzzify(self, x, fuzzy_output):
+        max_value = self.fuzzify(x)
+        return max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
     
 class Right(LinearMembership):
+    def __init__(self):
+        self.fuzzify_params = {
+            CLOSE_R:self.close_R,
+            MODERATE_R:self.moderate_R,
+            FAR_R:self.far_R
+        }
+        self.fuzzy_labels = self.fuzzify_params.keys()
+    
     def close_R(self, x):
         return self.membership(x, (0,50), (1, 0))
 
@@ -44,6 +61,14 @@ class Right(LinearMembership):
         return fuzzy_values
     
 class Left(LinearMembership):
+    def __init__(self):
+        self.fuzzify_params = {
+            CLOSE_L:self.close_L,
+            MODERATE_L:self.moderate_L,
+            FAR_L:self.far_L
+        }
+        self.fuzzy_labels = self.fuzzify_params.keys()
+    
     def close_L(self, x):
         return self.membership(x, (0,50), (1, 0))
 
@@ -62,6 +87,16 @@ class Left(LinearMembership):
         return fuzzy_values
 
 class Rotation(LinearMembership):
+    def __init__(self):
+        self.fuzzify_params = {
+            LOW_RIGHT: self.low_right,
+            HIGH_RIGHT: self.high_right,
+            NOTHING: self.nothing,
+            LOW_LEFT: self.low_left,
+            HIGHT_LEFT: self.high_left
+        }
+        self.fuzzy_labels = self.fuzzify_params.keys()
+    
     def high_right(self, x):
         return self.membership(x, (-50, -20), (0, 1)) + \
             self.membership(x, (-20, -5), (1, 0))
@@ -148,9 +183,11 @@ class FuzzyController:
         return output
 
     # Defuzzification method
-    def defuzzify(self, fuzzy_output):
-        pass        
-
+    def defuzzify(self, fuzzy_output, rng=(-50,50), delta=1):
+        space = list(range(*rng,delta))
+        merged_membership = [self.rotate_membership.defuzzify(v, fuzzy_output) for v in space]
+        return sum(merged_membership)/len(space)
+        
     # Main decision-making method
     def decide(self, left_dist, right_dist):
         pass
