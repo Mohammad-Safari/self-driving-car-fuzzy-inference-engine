@@ -32,7 +32,7 @@ class LinearMembership():
     def fuzzify(self, x):
         return {key:fn(x) for key, fn in self.fuzzify_params.items()}
     
-    def defuzzify(self, fuzzy_output, space_range=(-50,50,5)):
+    def defuzzify(self, fuzzy_output, space_range=(-50,50,0.01)):
         space = np.arange(*space_range)
         max_values = [self.fuzzify(v) for v in space]
         membership_values = [max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
