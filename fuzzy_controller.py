@@ -125,14 +125,20 @@ class FuzzyController:
         self.rotate_membership = Rotation()
 
     def parse_rule(self, rule_string):
-        m = re.match(r'IF \((\w+) IS (\w+) \) (AND|OR) \((\w+) IS (\w+)\)  THEN  (\w+) IS (\w+)', rule_string)
-        if not m:
+        pattern = r'IF \((\w+) IS (\w+) \)( (AND|OR) \((\w+) IS (\w+)\))?  THEN ([\s+(\w+) IS (\w+)]+)'    
+        match = re.match(pattern, rule_string)
+        if not match:
             raise ValueError(f"Invalid rule: {rule_string}")
-        # TODO: implement possibility of single antecedent and multiple consequent in rules
-        return {
-            'antecedent': {m.group(1): m.group(2), 'Operator':m.group(3), m.group(4): m.group(5)},
-            'consequent': {m.group(6): m.group(7)}
-        }
+        groups = match.groups()
+
+        antecedent = {groups[0]: groups[1]}
+        if groups[3:6] != [None]*3 :
+            antecedent['Operator'] = groups[3]
+            antecedent[groups[4]] = groups[5]
+
+        consequents = re.findall(r'(\w+) IS (\w+)', groups[-1])
+        return {'antecedent': antecedent, 'consequent': dict(consequents)}
+
 
     def read_rules(self, file_path):
         with open(file_path) as f:
