@@ -52,7 +52,7 @@ class Right(LinearMembership):
             self.membership(x, (50, 65), (1, 0))
 
     def far_R(self, x):
-        return self.membership(x, (50, 1), (0, 1))
+        return self.membership(x, (50, 100), (0, 1))
     
 class Left(LinearMembership):
     def __init__(self):
@@ -71,7 +71,7 @@ class Left(LinearMembership):
             self.membership(x, (50, 65), (1, 0))
 
     def far_L(self, x):
-        return self.membership(x, (50, 1), (0, 1))
+        return self.membership(x, (50, 100), (0, 1))
 
 class Rotation(LinearMembership):
     def __init__(self):
