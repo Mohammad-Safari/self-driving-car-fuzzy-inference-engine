@@ -42,7 +42,7 @@ class LinearMembership():
         membership_values = [max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
                             for max_value in max_values]
         marginal_sum = np.sum(membership_values)
-        return np.sum(space * membership_values) / marginal_sum 
+        return 0 if marginal_sum==0 else np.sum(space * membership_values) / marginal_sum 
     
 class Right(LinearMembership):
     def __init__(self):
@@ -113,18 +113,8 @@ class Rotation(LinearMembership):
         return self.membership(x, (5, 20), (0, 1)) + \
             self.membership(x, (20, 50), (1, 0))
 
-
-class FuzzyController:
-    def __init__(self):
-        self.rules = self.read_rules('rules.txt')
-        # Right distance membership
-        self.right_membership = Right()
-        # Left distance membership
-        self.left_membership = Left()
-        # Wheel rotation membership
-        self.rotate_membership = Rotation()
-
-    def parse_rule(self, rule_string):
+class Utils:
+    def parse_rule(rule_string):
         pattern = r'IF \((\w+) IS (\w+) \)( (AND|OR) \((\w+) IS (\w+)\))?  THEN ([\s+(\w+) IS (\w+)]+)'    
         match = re.match(pattern, rule_string)
         if not match:
@@ -139,23 +129,11 @@ class FuzzyController:
         consequents = re.findall(r'(\w+) IS (\w+)', groups[-1])
         return {'antecedent': antecedent, 'consequent': dict(consequents)}
 
-
-    def read_rules(self, file_path):
+    def read_rules(file_path):
         with open(file_path) as f:
-            return [self.parse_rule(line.strip()) for line in f]
+            return [Utils.parse_rule(line.strip()) for line in f]
 
-    # Fuzzification method
-    def fuzzify(self, left_dist, right_dist):
-        return {
-            # Fuzzify right distance
-            **self.right_membership.fuzzify(right_dist),
-            # Fuzzify left distance
-            **self.left_membership.fuzzify(left_dist)
-        }
-    
-    # Inference method
-    def inference(self, fuzzy_values):
-        rules = self.rules
+    def generic_inference(fuzzy_values, rules):
         output = {}
         for rule in rules:
             ant, cons = [list(ruleValue.values()) for ruleValue in rule.values()]
@@ -172,6 +150,29 @@ class FuzzyController:
                     output[act] = activation
 
         return output
+
+class FuzzyController:
+    def __init__(self):
+        self.rules = Utils.read_rules('rules.txt')
+        # Right distance membership
+        self.right_membership = Right()
+        # Left distance membership
+        self.left_membership = Left()
+        # Wheel rotation membership
+        self.rotate_membership = Rotation()
+
+    # Fuzzification method
+    def fuzzify(self, left_dist, right_dist):
+        return {
+            # Fuzzify right distance
+            **self.right_membership.fuzzify(right_dist),
+            # Fuzzify left distance
+            **self.left_membership.fuzzify(left_dist)
+        }
+    
+    # Inference method
+    def inference(self, fuzzy_values):
+        return Utils.generic_inference(fuzzy_values, self.rules)
 
     # Defuzzification method
     def defuzzify(self, fuzzy_output):
