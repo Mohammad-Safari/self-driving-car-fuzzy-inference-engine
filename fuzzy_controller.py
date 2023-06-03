@@ -130,14 +130,12 @@ class FuzzyController:
             return [self.parse_rule(line.strip()) for line in f]
 
     # Fuzzification method
-    def fuzzify(self, left_dist, right_dist, wheel_rotation):
+    def fuzzify(self, left_dist, right_dist):
         return {
             # Fuzzify right distance
             **self.right_membership.fuzzify(right_dist),
             # Fuzzify left distance
-            **self.left_membership.fuzzify(left_dist),
-            # Fuzzify wheel rotation
-            **self.rotate_membership.fuzzify(wheel_rotation)
+            **self.left_membership.fuzzify(left_dist)
         }
     
     # Inference method
