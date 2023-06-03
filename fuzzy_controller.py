@@ -169,4 +169,8 @@ class FuzzyController:
         
     # Main decision-making method
     def decide(self, left_dist, right_dist):
-        pass
+        fuzzy_values = self.fuzzify(left_dist, right_dist)
+        fuzzy_output = self.inference(fuzzy_values)
+        final_output = self.defuzzify(fuzzy_output)
+
+        return final_output
