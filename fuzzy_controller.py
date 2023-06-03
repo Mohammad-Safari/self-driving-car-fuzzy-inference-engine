@@ -1,4 +1,5 @@
 import re
+import numpy as np
 
 D_R = 'd_R'
 CLOSE_R = 'close_R'
@@ -31,9 +32,13 @@ class LinearMembership():
     def fuzzify(self, x):
         return {key:fn(x) for key, fn in self.fuzzify_params.items()}
     
-    def defuzzify(self, x, fuzzy_output):
-        max_value = self.fuzzify(x)
-        return max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
+    def defuzzify(self, fuzzy_output, space_range=(-50,50,5)):
+        space = np.arange(*space_range)
+        max_values = [self.fuzzify(v) for v in space]
+        membership_values = [max([min([max_value[flabel], fuzzy_output[flabel]]) for flabel in self.fuzzy_labels])
+                            for max_value in max_values]
+        marginal_sum = np.sum(membership_values)
+        return np.sum(space * membership_values) / marginal_sum 
     
 class Right(LinearMembership):
     def __init__(self):
@@ -159,10 +164,8 @@ class FuzzyController:
         return output
 
     # Defuzzification method
-    def defuzzify(self, fuzzy_output, rng=(-50,50), delta=1):
-        space = list(range(*rng,delta))
-        merged_membership = [self.rotate_membership.defuzzify(v, fuzzy_output) for v in space]
-        return sum(merged_membership)/len(space)
+    def defuzzify(self, fuzzy_output):
+        return self.rotate_membership.defuzzify(fuzzy_output)
         
     # Main decision-making method
     def decide(self, left_dist, right_dist):
