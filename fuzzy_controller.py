@@ -26,6 +26,10 @@ class LinearMembership():
         pass
     
     def membership(self, x, x_range, m_range):
+        """
+        according to output range and input range, it calulcates 
+        the linear membership of given point(x) based on the line
+        """
         linear_growth = (m_range[1]-m_range[0])/(x_range[1]-x_range[0])
         return (x-x_range[0])*linear_growth+m_range[0] if x>=x_range[0] and x<x_range[1] else 0
     
