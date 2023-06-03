@@ -149,7 +149,7 @@ class FuzzyController:
         output = {}
         for rule in rules:
             ant, cons = [list(ruleValue.values()) for ruleValue in rule.values()]
-            if 'Operator' in ant:
+            if 'AND' in ant or 'OR' in ant:
                 activation = min([fuzzy_values[ant[0]], fuzzy_values[ant[2]]]) if str(ant[1]).lower()=='and' \
                     else max([fuzzy_values[ant[0]], fuzzy_values[ant[2]]]) # OR operator
             else:
